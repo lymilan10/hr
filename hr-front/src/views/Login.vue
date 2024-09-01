@@ -1,18 +1,19 @@
 <template>
     <div>
         <!-- 表单 -->
-         <!-- rules 校验规则-->
-         <!-- model 数据对象 -->
-          <!-- ref 查找组件 -->
+        <!-- rules 校验规则-->
+        <!-- model 数据对象 -->
+        <!-- ref 查找组件 -->
         <el-form :rules="rules" :model="loginForm" ref="loginForm" class="loginContainer">
             <h3 class="loginTitle">系统登陆</h3>
-           
+
             <el-form-item prop="username">
                 <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="请输入用户名"></el-input>
             </el-form-item>
-            
+
             <el-form-item prop="password">
-                <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="请输入密码"></el-input>
+                <el-input type="password" v-model="loginForm.password" auto-complete="off"
+                    placeholder="请输入密码"></el-input>
             </el-form-item>
 
             <el-checkbox class="loginRemember" v-model="checked"></el-checkbox>
@@ -25,6 +26,8 @@
 </template>
 
 <script>
+//引入自定义方法
+// import { postKeyValueRequest } from '../utils/api'
 export default {
     name: 'Login',
     data() {
@@ -48,7 +51,23 @@ export default {
                 //valid：表单的验证结果 参数是否存在或者说是否填写
                 console.log(valid);
                 if (valid) {
-                    alert('submit!');
+                    // alert('submit!');
+                    this.postKeyValueRequest('/doLogin', this.loginForm).then(resp => {
+                        // console.log(resp);
+                        // 登录成功，服务端返回resp
+                        if (resp) {
+                            // 跳转页面
+                            // this.$router.push({ path: '/' });
+                            //JSON.stringify()将resp序列化转换为字符串，更具可读性
+                            // alert(JSON.stringify(resp))
+                            //只能存储字符串
+                            window.sessionStorage.setItem('user', JSON.stringify(resp.obj));
+                            this.$router.replace({ path: '/home' });
+                        } else {
+                            // 登录失败
+                            this.$message.error(resp.data.message);
+                        }
+                    })
                 } else {
                     this.$message.error('请输入所有字段');
                     return false;
